@@ -1,0 +1,46 @@
+name: Release
+
+# Once CI passes on main, a change to action.yml since the last release, such
+# as Renovate moving the agent, releases the next patch version and moves the
+# major tag to it, so workflows on @v1 get it. The first release is published
+# to GitHub Marketplace by hand.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+
+jobs:
+  release:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Release the next patch version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if ! last=$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' "$SHA" 2>/dev/null); then
+            echo "No release yet: the first is published to GitHub Marketplace by hand."
+            exit 0
+          fi
+          if git diff --quiet "$last" "$SHA" -- action.yml; then
+            echo "action.yml is the same as in $last."
+            exit 0
+          fi
+          IFS=. read -r major minor patch <<< "${last#v}"
+          next="v$major.$minor.$((patch + 1))"
+          gh release create "$next" --target "$SHA" --title "$next" --generate-notes
+          git tag -f "v$major" "$SHA"
+          git push -f origin "v$major"

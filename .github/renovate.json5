@@ -1,0 +1,24 @@
+// Renovate moves the agent this action wraps to each new release, and the
+// actions CI uses, pinned to digests. Updates come on Monday mornings;
+// Renovate merges them itself once CI passes, and a changed action.yml
+// releases a new version (.github/workflows/release.yml).
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: ['config:recommended', 'helpers:pinGitHubActionDigests'],
+  timezone: 'Europe/London',
+  schedule: ['* 6-11 * * 1'],
+  rebaseWhen: 'conflicted',
+  semanticCommits: 'disabled',
+  packageRules: [
+    {
+      matchUpdateTypes: ['minor', 'patch', 'digest', 'pin', 'pinDigest'],
+      groupName: 'non-major dependencies',
+      automerge: true,
+    },
+    {
+      // Agent releases are DbProof's own, so even a 0.x minor merges.
+      matchPackageNames: ['dbproof/agent'],
+      automerge: true,
+    },
+  ],
+}

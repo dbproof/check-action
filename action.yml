@@ -1,0 +1,50 @@
+name: DbProof check
+description: Test pull request migrations against your production schema and statistics. Flyway, Atlas, Prisma, Drizzle.
+author: DbProof
+branding:
+  icon: check-circle
+  color: green
+inputs:
+  project:
+    description: The DbProof project, org/slug.
+    required: true
+  migrations-dir:
+    description: The migrations folder, relative to the repository root.
+    required: true
+  migrate-command:
+    description: >-
+      Your migrate command. It finds the throwaway database in DBPROOF_CHECK_*
+      variables, e.g. flyway -url=$DBPROOF_CHECK_JDBC_URL migrate, or in
+      DATABASE_URL, e.g. npx prisma migrate deploy.
+    required: true
+  dbproof-url:
+    description: DbProof's address.
+    default: https://app.dbproof.dev
+  database:
+    description: >-
+      postgres:// URL of an empty throwaway database, as a superuser. By
+      default the check starts postgres-image in Docker instead.
+    default: ""
+  postgres-image:
+    description: >-
+      The Docker image the check starts when no database is given. {major} is
+      production's Postgres major version, so the check runs on the version
+      production does; use an image with your extensions, e.g.
+      pgvector/pgvector:pg{major}.
+    default: postgres:{major}
+  fail-on-unreachable:
+    description: Fail instead of passing with a warning when DbProof is unreachable.
+    default: "false"
+runs:
+  using: composite
+  steps:
+    # The agent, open source at github.com/dbproof/agent, pinned by commit.
+    - uses: dbproof/agent/actions/check@92f5018b943b5735b69bc70d93c460dd14436335 # v0.2.0
+      with:
+        project: ${{ inputs.project }}
+        migrations-dir: ${{ inputs.migrations-dir }}
+        migrate-command: ${{ inputs.migrate-command }}
+        dbproof-url: ${{ inputs.dbproof-url }}
+        database: ${{ inputs.database }}
+        postgres-image: ${{ inputs.postgres-image }}
+        fail-on-unreachable: ${{ inputs.fail-on-unreachable }}

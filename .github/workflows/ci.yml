@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Runs the action as a workflow would, against a DbProof that isn't there:
+  # it builds the agent and must pass with a warning.
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./
+        env:
+          DBPROOF_CHECK_TOKEN: smoke-test
+        with:
+          project: smoke/test
+          migrations-dir: .
+          migrate-command: "false"
+          dbproof-url: http://localhost:9
