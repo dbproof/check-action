@@ -1,5 +1,5 @@
 name: DbProof check
-description: Test pull request migrations against your production schema and statistics. Flyway, Atlas, Prisma, Drizzle.
+description: Test PostgreSQL migrations in pull requests against your production schema and statistics. Flyway, Atlas, Prisma, Drizzle.
 author: DbProof
 branding:
   icon: check-circle
