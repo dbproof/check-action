@@ -16,8 +16,11 @@
       automerge: true,
     },
     {
-      // Agent releases are DbProof's own, so even a 0.x minor merges.
+      // Agent releases are DbProof's own, so even a 0.x minor merges. Workflows
+      // on @v1 get each one at once, so it waits a week: by then the server
+      // has pinned and deployed it, and supports whatever it sends.
       matchPackageNames: ['dbproof/agent'],
+      minimumReleaseAge: '7 days',
       automerge: true,
     },
   ],
