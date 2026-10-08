@@ -39,7 +39,7 @@ runs:
   using: composite
   steps:
     # The agent, open source at github.com/dbproof/agent, pinned by commit.
-    - uses: dbproof/agent/actions/check@92f5018b943b5735b69bc70d93c460dd14436335 # v0.2.0
+    - uses: dbproof/agent/actions/check@01774c564045b5071ffa71bc74d7282b44918547 # v0.2.2
       with:
         project: ${{ inputs.project }}
         migrations-dir: ${{ inputs.migrations-dir }}
